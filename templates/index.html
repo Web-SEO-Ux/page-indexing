@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Page Indexing API</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f7f7f7; }
+        .menu { background: #333; padding: 10px; text-align: center; }
+        .menu a { color: white; margin: 0 15px; text-decoration: none; font-weight: bold; }
+        .container { max-width: 600px; margin: 30px auto; background: white; padding: 20px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
+        button, textarea, select { width: 100%; padding: 10px; margin: 10px 0;box-sizing: border-box;-webkit-box-sizing: border-box;-moz-box-sizing: border-box; }
+    </style>
+</head>
+<body>
+    <div class="menu">
+        <a href="{{ url_for('index') }}">Home</a>
+        <a href="{{ url_for('logs') }}">Logs</a>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+
+    <div class="container">
+        <h2>Submit URLs for Indexing</h2>
+        <form id="urlForm">
+            <select name="api_key" required>
+                <option value="">Select API Key</option>
+                {% for key in api_keys %}
+                <option value="{{ key }}">{{ key }}</option>
+                {% endfor %}
+            </select>
+            <textarea name="urls" rows="10" placeholder="Enter one URL per line" required></textarea>
+            <button type="submit">Submit</button>
+        </form>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('urlForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            fetch('/index_urls', { method: 'POST', body: formData })
+            .then(response => response.json())
+            .then(data => {
+                let resultsHtml = '';
+                data.forEach(item => resultsHtml += `<p>${item.url}: ${item.message}</p>`);
+                document.getElementById('result').innerHTML = resultsHtml;
+            })
+            .catch(error => document.getElementById('result').innerText = 'Error: ' + error.message);
+        });
+    </script>
+</body>
+</html>
